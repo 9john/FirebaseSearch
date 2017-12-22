@@ -20,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mSearchbtn;
 
     private RecyclerView mList;
+
+    //firebase
     private DatabaseReference mContentRef;
 
 
@@ -35,13 +37,17 @@ public class MainActivity extends AppCompatActivity {
         mList.setHasFixedSize(true);
         mList.setLayoutManager( new LinearLayoutManager(this));
 
+        //firebase database reference of content we are search
         mContentRef = FirebaseDatabase.getInstance().getReference().child("Content");
 
         mSearchbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                //get the text from the edit text as string into a variable searchText
                 String searchText = mSearchText.getText().toString();
+
+                //pass the variable search text in the method searchText
                 firebaseSearch(searchText);
             }
         });
@@ -50,16 +56,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    //here we declear a method to carryout the search and display it in recycler view
+    //using firebase ui recycler adapater
     private void firebaseSearch(String searchText) {
 
 
+        //declear a firebase query to retrieve the search text,
+        //start at the letter typed and end at the letter typed
+        //
         Query searchQuery = mContentRef.orderByChild("title").startAt(searchText).endAt(searchText + "\uf8ff");
 
+        /*
+        * FirebaseRecycler add accept the model claa and view holder class
+        * also we pass in four arguments:
+        * the model class , the single item layout, the view Holder class and the search query
+         */
         FirebaseRecyclerAdapter<Search, ContentViewHolder> fireAdapter = new FirebaseRecyclerAdapter<Search, ContentViewHolder>(
                 Search.class,
                 R.layout.item_layout,
                 ContentViewHolder.class,
-                mContentRef
+                searchQuery
 
 
         ) {
@@ -72,6 +89,10 @@ public class MainActivity extends AppCompatActivity {
 
         mList.setAdapter(fireAdapter);
     }
+
+
+    //View holder class
+    //we set the contents to the view widget
 
     public static class ContentViewHolder extends RecyclerView.ViewHolder{
         View mView;
